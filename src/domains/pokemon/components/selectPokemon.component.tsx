@@ -36,7 +36,11 @@ const SelectPokemonComponent: React.FC<SelectPokemonProps> = ({
   return (
     <Form.Select value={pokemon} onChange={onChangeValue}>
       {optionPokemon.map((optionPokemon: string) => {
-        return <option value={optionPokemon}>{optionPokemon}</option>
+        return <option
+          key={`select-pokemon-${optionPokemon}`}
+          value={optionPokemon}>
+          {optionPokemon}
+        </option>
       })}
     </Form.Select>
   );
