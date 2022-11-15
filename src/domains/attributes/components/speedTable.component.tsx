@@ -21,7 +21,7 @@ const SpeedTableComponent: React.FC<SpeedTableProps> = ({
     setTable(data)
   }, [data])
   return (
-    <Table striped bordered hover>
+    <Table striped bordered hover size="sm">
       <thead>
       <tr>
         <th key="table-speed-lvl" colSpan={0.5}>Level</th>
