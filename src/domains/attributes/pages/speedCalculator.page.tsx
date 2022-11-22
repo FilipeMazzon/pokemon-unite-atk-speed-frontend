@@ -6,6 +6,8 @@ import {getAtkSpeed} from "../services/speed.service";
 import RedEmblemsSelectComponent from "../components/redEmblemsSelect.component";
 import {AtkSpeedColumnsEnum} from "../enums/atkSpeedColumns.enum";
 import AdditionalBuffComponent from "../components/additionalBuff.component";
+import GenericBuffsComponent from "../components/genericBuffs.component";
+import {BuffDto} from "../dtos/buffDto";
 
 const defaultPokemon = "absol";
 const SpeedCalculatorPage: React.FC = (): ReactElement => {
@@ -14,6 +16,8 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
   const [redEmblem, setRedEmblem] = useState<string>("0");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [additionalBuff, setAdditionalBuff] = useState<number>(0);
+  const [genericBuffs, setGenericBuffs] = useState<BuffDto[]>([]);
+  const [pokemonBuffs, setPokemonBuffs] = useState<BuffDto[]>([]);
   console.log(data);
   const handleBaseStats = async (requestPokemon: string = pokemon || '') => {
     try {
@@ -72,6 +76,27 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
     return [];
   }
 
+  const handleBuffs = async (
+    requestPokemon: string = pokemon || '',
+    buffs: BuffDto[] = [],
+  ): Promise<number[]> => {
+    try {
+      if (requestPokemon) {
+        setIsLoading(true);
+        const response = await getAtkSpeed(requestPokemon, {
+          buffs
+        });
+        setIsLoading(false);
+        return response;
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.error(error);
+    }
+    return [];
+  }
+
+
   const onChangeEmblem = async (valueEmblem: string) => {
     setRedEmblem(valueEmblem);
     if (valueEmblem === "0") {
@@ -90,18 +115,7 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
       })
     }
   }
-  const onChangePokemon = async (newPokemon: string) => {
-    setPokemon(newPokemon);
-    const baseStats = await handleBaseStats(newPokemon);
-    const newData: SpeedTableData = {
-      [AtkSpeedColumnsEnum.baseStats]: baseStats
-    };
 
-    if (redEmblem !== "0") {
-      newData[AtkSpeedColumnsEnum.redEmblems] = await handleRedEmblemsStats(newPokemon);
-    }
-    setData(newData)
-  }
 
   const onChangeAdditional = async (additional: number) => {
     setAdditionalBuff(additional);
@@ -112,6 +126,45 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
         [AtkSpeedColumnsEnum.additional]: response
       })
     }
+  }
+
+  const onChangeBuffs = async (genericBuff: BuffDto[], pokeBuffs: BuffDto[] = []) => {
+    const response = await handleBuffs(pokemon, [
+      ...genericBuff,
+      ...pokeBuffs
+    ]);
+    setData({
+      ...data,
+      [AtkSpeedColumnsEnum.buffs]: response
+    })
+  }
+  const onChangeGeneric = async (buffs: BuffDto[]) => {
+    setGenericBuffs(buffs);
+    await onChangeBuffs(buffs, pokemonBuffs);
+  }
+
+  const onChangePokeBuffs = async (buffs: BuffDto[]) => {
+    setPokemonBuffs(buffs);
+    await onChangeBuffs(genericBuffs, buffs);
+  }
+
+  const onChangePokemon = async (newPokemon: string) => {
+    setPokemon(newPokemon);
+    const baseStats = await handleBaseStats(newPokemon);
+    const newData: SpeedTableData = {
+      [AtkSpeedColumnsEnum.baseStats]: baseStats
+    };
+
+    if (redEmblem !== "0") {
+      newData[AtkSpeedColumnsEnum.redEmblems] = await handleRedEmblemsStats(newPokemon);
+    }
+    if(additionalBuff) {
+      newData[AtkSpeedColumnsEnum.additional] = await handleAdditionalBuffsStats(pokemon, additionalBuff);
+    }
+    if(genericBuffs.length) {
+      newData[AtkSpeedColumnsEnum.buffs] = await handleBuffs(pokemon, genericBuffs);
+    }
+    setData(newData)
   }
   useEffect(() => {
     (async () => {
@@ -157,7 +210,11 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
           </Card>
         </Col>
       </Row>
-
+      <Row>
+        <Col>
+          <GenericBuffsComponent onChange={onChangeGeneric}/>
+        </Col>
+      </Row>
       <Row>
         {isLoading ? <Spinner animation="border"/> : <SpeedTableComponent data={data}/>}
       </Row>

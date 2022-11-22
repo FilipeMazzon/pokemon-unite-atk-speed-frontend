@@ -1,4 +1,4 @@
-import React, {ChangeEvent, FocusEventHandler, ReactElement, useEffect, useState} from 'react';
+import React, {ChangeEvent, ReactElement, useEffect, useState} from 'react';
 import {Form} from 'react-bootstrap';
 
 export interface RedEmblemsSelectProps {
