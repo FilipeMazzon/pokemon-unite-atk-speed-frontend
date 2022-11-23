@@ -161,6 +161,7 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
       const allResponse = await handleAll(pokemon, redEmblem, genericBuffs);
       setData({
         ...data,
+        [AtkSpeedColumnsEnum.additional]: data[AtkSpeedColumnsEnum.baseStats],
         [AtkSpeedColumnsEnum.allSelect]: allResponse
       })
     }
@@ -212,7 +213,7 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
       [AtkSpeedColumnsEnum.baseStats]: baseStats,
       [AtkSpeedColumnsEnum.redEmblems]: emblemsResponse,
       [AtkSpeedColumnsEnum.buffs]: buffsResponse,
-      [AtkSpeedColumnsEnum.additional]: additionalResponse ,
+      [AtkSpeedColumnsEnum.additional]: additionalResponse,
       [AtkSpeedColumnsEnum.allSelect]: allResponse
     };
     setData(newData);

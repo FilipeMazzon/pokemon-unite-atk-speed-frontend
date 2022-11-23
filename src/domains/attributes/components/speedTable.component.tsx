@@ -1,5 +1,6 @@
 import React, {ReactElement, useEffect, useState} from 'react';
 import {Table} from "react-bootstrap";
+import {getColor} from "../helpers/colorSpeed.helper";
 
 export interface SpeedTableData {
   [p: string]: number[]
@@ -34,7 +35,8 @@ const SpeedTableComponent: React.FC<SpeedTableProps> = ({
           return (<tr key={`table-speed-${level}`}>
             <td key={`table-speed-data-level-${level}`} colSpan={0.5}>{level + 1}</td>
             {columns.map((column) => {
-              return <td key={`table-speed-data-${column}-${level}`}>{table[column][level]}</td>
+              return <td style={{background: getColor(table[column][level])}}
+                         key={`table-speed-data-${column}-${level}`}>{table[column][level]}</td>
             })}
           </tr>)
         })
