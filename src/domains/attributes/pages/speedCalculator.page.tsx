@@ -8,6 +8,7 @@ import {AtkSpeedColumnsEnum} from "../enums/atkSpeedColumns.enum";
 import AdditionalBuffComponent from "../components/additionalBuff.component";
 import GenericBuffsComponent from "../components/genericBuffs.component";
 import {BuffDto} from "../dtos/buffDto";
+import {AtkSpeedDto} from "../dtos/atkSpeed.dto";
 
 const defaultPokemon = "absol";
 const SpeedCalculatorPage: React.FC = (): ReactElement => {
@@ -46,6 +47,39 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
             level: parseInt(emblems, 10)
           }
         });
+        setIsLoading(false);
+        return response;
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.error(error);
+    }
+    return [];
+  }
+
+  const handleAll = async (
+    requestPokemon: string = pokemon || '',
+    emblems: string = redEmblem,
+    buffs: BuffDto[] = genericBuffs,
+    additional: number = additionalBuff,
+  ) => {
+    try {
+      if (requestPokemon) {
+        setIsLoading(true);
+        const dto: AtkSpeedDto = {};
+        if (emblems && emblems !== "0") {
+          dto.emblems = {
+            level: parseInt(emblems, 10)
+          }
+        }
+        if (buffs.length) {
+          dto.buffs = buffs;
+        }
+        if (additional) {
+          dto.additionalBuff = additional;
+        }
+
+        const response = await getAtkSpeed(requestPokemon, dto);
         setIsLoading(false);
         return response;
       }
@@ -99,43 +133,54 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
 
   const onChangeEmblem = async (valueEmblem: string) => {
     setRedEmblem(valueEmblem);
-    if (valueEmblem === "0") {
-      const keys = Object.keys(data);
-      const indexKey = keys.indexOf(AtkSpeedColumnsEnum.redEmblems);
-      if (indexKey !== -1) {
-        const makeCopy = {...data};
-        delete makeCopy[keys[indexKey]];
-        setData(makeCopy);
-      }
-    } else {
-      const response = await handleRedEmblemsStats(pokemon, valueEmblem);
-      setData({
-        ...data,
-        [AtkSpeedColumnsEnum.redEmblems]: response
-      })
-    }
-  }
 
+    const [response, allResponse] = await Promise.all([
+      handleRedEmblemsStats(pokemon, valueEmblem),
+      handleAll(pokemon, valueEmblem)
+    ])
+    setData({
+      ...data,
+      [AtkSpeedColumnsEnum.redEmblems]: response,
+      [AtkSpeedColumnsEnum.allSelect]: allResponse
+    })
+  }
 
   const onChangeAdditional = async (additional: number) => {
     setAdditionalBuff(additional);
     if (additional) {
-      const response = await handleAdditionalBuffsStats(pokemon, additional);
+      const [response, allResponse] = await Promise.all([
+        handleAdditionalBuffsStats(pokemon, additional),
+        handleAll(pokemon, redEmblem, genericBuffs, additional)
+      ]);
       setData({
         ...data,
-        [AtkSpeedColumnsEnum.additional]: response
+        [AtkSpeedColumnsEnum.additional]: response,
+        [AtkSpeedColumnsEnum.allSelect]: allResponse
+      })
+    } else {
+      const allResponse = await handleAll(pokemon, redEmblem, genericBuffs);
+      setData({
+        ...data,
+        [AtkSpeedColumnsEnum.allSelect]: allResponse
       })
     }
   }
 
   const onChangeBuffs = async (genericBuff: BuffDto[], pokeBuffs: BuffDto[] = []) => {
-    const response = await handleBuffs(pokemon, [
-      ...genericBuff,
-      ...pokeBuffs
+    const [response, allResponse] = await Promise.all([
+      handleBuffs(pokemon, [
+        ...genericBuff,
+        ...pokeBuffs
+      ]),
+      handleAll(pokemon, redEmblem, [
+        ...genericBuff,
+        ...pokeBuffs
+      ])
     ]);
     setData({
       ...data,
-      [AtkSpeedColumnsEnum.buffs]: response
+      [AtkSpeedColumnsEnum.buffs]: response,
+      [AtkSpeedColumnsEnum.allSelect]: allResponse
     })
   }
   const onChangeGeneric = async (buffs: BuffDto[]) => {
@@ -150,21 +195,31 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
 
   const onChangePokemon = async (newPokemon: string) => {
     setPokemon(newPokemon);
-    const baseStats = await handleBaseStats(newPokemon);
+    const [
+      baseStats,
+      emblemsResponse,
+      buffsResponse,
+      additionalResponse,
+      allResponse
+    ] = await Promise.all([
+      handleBaseStats(newPokemon),
+      handleRedEmblemsStats(newPokemon),
+      handleBuffs(newPokemon, genericBuffs),
+      handleAdditionalBuffsStats(newPokemon, additionalBuff),
+      handleAll(newPokemon)
+    ]);
     const newData: SpeedTableData = {
-      [AtkSpeedColumnsEnum.baseStats]: baseStats
+      [AtkSpeedColumnsEnum.baseStats]: baseStats,
+      [AtkSpeedColumnsEnum.redEmblems]: emblemsResponse,
+      [AtkSpeedColumnsEnum.buffs]: buffsResponse,
+      [AtkSpeedColumnsEnum.additional]: additionalResponse ,
+      [AtkSpeedColumnsEnum.allSelect]: allResponse
     };
+    setData(newData);
+  }
 
-    if (redEmblem !== "0") {
-      newData[AtkSpeedColumnsEnum.redEmblems] = await handleRedEmblemsStats(newPokemon);
-    }
-    if(additionalBuff) {
-      newData[AtkSpeedColumnsEnum.additional] = await handleAdditionalBuffsStats(pokemon, additionalBuff);
-    }
-    if(genericBuffs.length) {
-      newData[AtkSpeedColumnsEnum.buffs] = await handleBuffs(pokemon, genericBuffs);
-    }
-    setData(newData)
+  const onChangeAll = () => {
+
   }
   useEffect(() => {
     (async () => {

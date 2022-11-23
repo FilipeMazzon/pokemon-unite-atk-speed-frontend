@@ -19,7 +19,7 @@ const GenericBuffsComponent: React.FC<GenericBuffsProps> = ({
       const response = await getGenericBuffs();
       setBuffs(response);
     })()
-  })
+  }, [])
 
   const onChangeBuff = (buff: string) => (event: ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
