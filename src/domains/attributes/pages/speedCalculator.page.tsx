@@ -158,7 +158,7 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
         [AtkSpeedColumnsEnum.allSelect]: allResponse
       })
     } else {
-      const allResponse = await handleAll(pokemon, redEmblem, genericBuffs);
+      const allResponse = await handleAll(pokemon, redEmblem, genericBuffs, 0);
       setData({
         ...data,
         [AtkSpeedColumnsEnum.additional]: data[AtkSpeedColumnsEnum.baseStats],
