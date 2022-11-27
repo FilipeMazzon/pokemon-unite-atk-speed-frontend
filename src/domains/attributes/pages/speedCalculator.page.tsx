@@ -10,6 +10,8 @@ import GenericBuffsComponent from "../components/genericBuffs.component";
 import {BuffDto} from "../dtos/buffDto";
 import {AtkSpeedDto} from "../dtos/atkSpeed.dto";
 import BuffPokemonsComponent from "../components/buffsPokemons.component";
+import ItemsComponent from "../components/items.component";
+import {ItemsDto} from "../dtos/items.dto";
 
 const defaultPokemon = "absol";
 const SpeedCalculatorPage: React.FC = (): ReactElement => {
@@ -20,7 +22,8 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
   const [additionalBuff, setAdditionalBuff] = useState<number>(0);
   const [genericBuffs, setGenericBuffs] = useState<BuffDto[]>([]);
   const [pokemonBuffs, setPokemonBuffs] = useState<BuffDto[]>([]);
-  console.log(data);
+  const [itemsDto, setItemsDto] = useState<ItemsDto[]>([]);
+
   const handleBaseStats = async (requestPokemon: string = pokemon || '') => {
     try {
       if (requestPokemon) {
@@ -63,6 +66,7 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
     emblems: string = redEmblem,
     buffs: BuffDto[] = genericBuffs,
     additional: number = additionalBuff,
+    items: ItemsDto[] = itemsDto
   ) => {
     try {
       if (requestPokemon) {
@@ -78,6 +82,9 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
         }
         if (additional) {
           dto.additionalBuff = additional;
+        }
+        if (items && items.length) {
+          dto.items = items;
         }
 
         const response = await getAtkSpeed(requestPokemon, dto);
@@ -110,7 +117,25 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
     }
     return [];
   }
-
+  const handleItems = async (
+    requestPokemon: string = pokemon || '',
+    items: ItemsDto[] = itemsDto
+  ) => {
+    try {
+      if (requestPokemon) {
+        setIsLoading(true);
+        const response = await getAtkSpeed(requestPokemon, {
+          items
+        });
+        setIsLoading(false);
+        return response;
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.error(error);
+    }
+    return [];
+  }
   const handleBuffs = async (
     requestPokemon: string = pokemon || '',
     buffs: BuffDto[] = [],
@@ -195,6 +220,19 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
     await onChangeBuffs(genericBuffs, buffs);
   }
 
+  const onChangeItems = async (items: ItemsDto[]) => {
+    setItemsDto(items);
+    const [response, allResponse] = await Promise.all([
+      handleItems(pokemon, items),
+      handleAll(pokemon, redEmblem, [...pokemonBuffs, ...genericBuffs], additionalBuff, items)
+    ]);
+    setData({
+      ...data,
+      [AtkSpeedColumnsEnum.items]: response,
+      [AtkSpeedColumnsEnum.allSelect]: allResponse
+    })
+  }
+
   const onChangePokemon = async (newPokemon: string) => {
     setPokemon(newPokemon);
     setPokemonBuffs([]);
@@ -203,18 +241,21 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
       emblemsResponse,
       buffsResponse,
       additionalResponse,
+      itemsResponse,
       allResponse
     ] = await Promise.all([
       handleBaseStats(newPokemon),
       handleRedEmblemsStats(newPokemon),
       handleBuffs(newPokemon, genericBuffs),
       handleAdditionalBuffsStats(newPokemon, additionalBuff),
+      handleItems(newPokemon, itemsDto),
       handleAll(newPokemon)
     ]);
     const newData: SpeedTableData = {
       [AtkSpeedColumnsEnum.baseStats]: baseStats,
       [AtkSpeedColumnsEnum.redEmblems]: emblemsResponse,
       [AtkSpeedColumnsEnum.buffs]: buffsResponse,
+      [AtkSpeedColumnsEnum.items]: itemsResponse,
       [AtkSpeedColumnsEnum.additional]: additionalResponse,
       [AtkSpeedColumnsEnum.allSelect]: allResponse
     };
@@ -264,6 +305,9 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
             </Card.Body>
           </Card>
         </Col>
+      </Row>
+      <Row>
+        <ItemsComponent onChange={onChangeItems}/>
       </Row>
       <Row>
         <Col>
