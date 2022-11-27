@@ -9,6 +9,7 @@ import AdditionalBuffComponent from "../components/additionalBuff.component";
 import GenericBuffsComponent from "../components/genericBuffs.component";
 import {BuffDto} from "../dtos/buffDto";
 import {AtkSpeedDto} from "../dtos/atkSpeed.dto";
+import BuffPokemonsComponent from "../components/buffsPokemons.component";
 
 const defaultPokemon = "absol";
 const SpeedCalculatorPage: React.FC = (): ReactElement => {
@@ -136,7 +137,7 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
 
     const [response, allResponse] = await Promise.all([
       handleRedEmblemsStats(pokemon, valueEmblem),
-      handleAll(pokemon, valueEmblem)
+      handleAll(pokemon, valueEmblem, [...pokemonBuffs, ...genericBuffs], additionalBuff)
     ])
     setData({
       ...data,
@@ -150,7 +151,7 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
     if (additional) {
       const [response, allResponse] = await Promise.all([
         handleAdditionalBuffsStats(pokemon, additional),
-        handleAll(pokemon, redEmblem, genericBuffs, additional)
+        handleAll(pokemon, redEmblem, [...pokemonBuffs, ...genericBuffs], additional)
       ]);
       setData({
         ...data,
@@ -158,7 +159,7 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
         [AtkSpeedColumnsEnum.allSelect]: allResponse
       })
     } else {
-      const allResponse = await handleAll(pokemon, redEmblem, genericBuffs, 0);
+      const allResponse = await handleAll(pokemon, redEmblem, [...pokemonBuffs, ...genericBuffs], 0);
       setData({
         ...data,
         [AtkSpeedColumnsEnum.additional]: data[AtkSpeedColumnsEnum.baseStats],
@@ -196,6 +197,7 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
 
   const onChangePokemon = async (newPokemon: string) => {
     setPokemon(newPokemon);
+    setPokemonBuffs([]);
     const [
       baseStats,
       emblemsResponse,
@@ -219,9 +221,6 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
     setData(newData);
   }
 
-  const onChangeAll = () => {
-
-  }
   useEffect(() => {
     (async () => {
       await onChangePokemon(defaultPokemon)
@@ -269,6 +268,9 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
       <Row>
         <Col>
           <GenericBuffsComponent onChange={onChangeGeneric}/>
+        </Col>
+        <Col>
+          <BuffPokemonsComponent pokemon={pokemon} onChange={onChangePokeBuffs}/>
         </Col>
       </Row>
       <Row>
