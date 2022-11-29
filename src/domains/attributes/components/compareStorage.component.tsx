@@ -13,7 +13,6 @@ const CompareStorageComponent: React.FC<CompareStorageProps> = ({
                                                                   pokemon
                                                                 }): ReactElement => {
   const [name, setName] = useState<string>('');
-
   const initialStorage = (): SpeedTableData => {
     return {
       [AtkSpeedColumnsEnum.baseStats]: currentTable[AtkSpeedColumnsEnum.baseStats],
@@ -23,7 +22,7 @@ const CompareStorageComponent: React.FC<CompareStorageProps> = ({
   useEffect(() => {
     setStorageCompare(initialStorage());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pokemon]);
+  }, [pokemon, currentTable]);
   const onChangeName = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setName(newValue);
