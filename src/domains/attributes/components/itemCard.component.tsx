@@ -19,8 +19,8 @@ const ItemCardComponent: React.FC<ItemCardProps> = ({
     const isActive = e.target.checked;
     let newLevel = level;
     if (isActive && level === 0) {
-      newLevel = 1;
-      setLevel(1);
+      newLevel = 30;
+      setLevel(newLevel);
     }
     setActive(isActive)
     onChange(

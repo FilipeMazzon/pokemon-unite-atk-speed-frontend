@@ -12,6 +12,7 @@ import {AtkSpeedDto} from "../dtos/atkSpeed.dto";
 import BuffPokemonsComponent from "../components/buffsPokemons.component";
 import ItemsComponent from "../components/items.component";
 import {ItemsDto} from "../dtos/items.dto";
+import CompareStorageComponent from "../components/compareStorage.component";
 
 const defaultPokemon = "absol";
 const SpeedCalculatorPage: React.FC = (): ReactElement => {
@@ -39,6 +40,7 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
     setIsLoading(false);
     return [];
   }
+
   const handleRedEmblemsStats = async (
     requestPokemon: string = pokemon || '',
     emblems = redEmblem
@@ -319,6 +321,9 @@ const SpeedCalculatorPage: React.FC = (): ReactElement => {
       </Row>
       <Row>
         {isLoading ? <Spinner animation="border"/> : <SpeedTableComponent data={data}/>}
+      </Row>
+      <Row>
+        <CompareStorageComponent pokemon={pokemon} currentTable={data}/>
       </Row>
     </Container>
   );
