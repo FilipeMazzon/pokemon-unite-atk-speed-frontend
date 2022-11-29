@@ -1,6 +1,26 @@
-# Getting Started with Create React App
+# Pokemon unite atk speed calculator
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+this is a project to calculate any possibility of each pokemon handle atk speed inside the game as you can see:
+
+1. filter: ![plot](./public/filters-atk-speed.png)
+2. results: ![results](./public/result-filter.png)
+3. compare table ![plot](./public/compare-table.png)
+
+so how to run this? 
+make sure you have installed [git](https://git-scm.com/) and [node](https://nodejs.org/en/)
+
+this repository is only frontend so you will need do the next steps for [backend](https://github.com/FilipeMazzon/pokemon-unite-atk-speed) as well 
+
+```
+ git clone https://github.com/FilipeMazzon/pokemon-unite-atk-speed-frontend.git
+ cd pokemon-unite-atk-speed-frontend
+ npm install 
+ npm start
+```
+
+clone the backend and repeat npm commands.
+
+enjoy :)
 
 ## Available Scripts
 
