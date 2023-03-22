@@ -26,11 +26,11 @@ const SpeedTableComponent: React.FC<SpeedTableProps> = ({
       <thead>
       <tr>
         <th key="table-speed-lvl" colSpan={0.5}>Level</th>
-        {columns.map((column: string) => <th key={`table-speed-${column}`}>{column}</th>)}
+        {columns && columns.length ? columns.map((column: string) => <th key={`table-speed-${column}`}>{column}</th>) : null}
       </tr>
       </thead>
       <tbody>
-      {columns.length ?
+      {columns && columns.length && table[columns[0]] ?
         table[columns[0]].map((_, level) => {
           return (<tr key={`table-speed-${level}`}>
             <td key={`table-speed-data-level-${level}`} colSpan={0.5}>{level + 1}</td>

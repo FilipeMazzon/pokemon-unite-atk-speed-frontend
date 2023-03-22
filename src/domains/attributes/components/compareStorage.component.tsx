@@ -22,7 +22,7 @@ const CompareStorageComponent: React.FC<CompareStorageProps> = ({
   useEffect(() => {
     setStorageCompare(initialStorage());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pokemon, currentTable]);
+  }, [pokemon]);
   const onChangeName = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setName(newValue);
